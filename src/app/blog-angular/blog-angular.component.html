@@ -1,0 +1,160 @@
+<nav class="navbar navbar-dark bg-dark">
+    <form class="container-fluid justify-content-between">
+        <span class="navbar-text text-light fs-4"> Angular Blog</span>
+        <div *ngIf="!signedUser" class="btn-group" role="group">
+            <button 
+                (click)="signIn()"    
+                type="button" 
+                class="btn btn-outline-primary" 
+                data-bs-toggle="modal" 
+                data-bs-target="#addModal">
+                Sign In
+            </button>
+            <button 
+                (click)="signUp()"      
+                type="button" 
+                class="btn btn-outline-success" 
+                data-bs-toggle="modal" 
+                data-bs-target="#addModal">
+                Sign Up
+            </button>
+        </div>
+        <div *ngIf="signedUser" class="btn-group" role="group">
+            <button 
+                type="button" 
+                class="btn btn-outline-success" 
+                data-bs-toggle="modal" 
+                data-bs-target="#addModal">
+                Add post
+            </button>
+            <button type="button" class="btn btn-warning"> {{ signedUser }}</button>
+            <button (click)="signOut()" type="button" class="btn btn-outline-warning">Sign Out</button>
+        </div>
+    </form>
+</nav>
+
+<!-- Modals -->
+<div class="modal fade" id="addModal" tabindex="-1" aria-labelledby="addModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 *ngIf="registered && !signedUser" class="modal-title fs-5" id="addModalLabel">Sign In</h1>
+          <h1 *ngIf="!registered && !signedUser" class="modal-title fs-5" id="addModalLabel">Sign Up</h1>
+          <h1 *ngIf="signedUser" class="modal-title fs-5" id="addModalLabel">Add post</h1>
+          <button 
+                (click)="resetForm()" 
+                type="button" 
+                class="btn-close" 
+                data-bs-dismiss="modal" 
+                aria-label="Close">
+            </button>
+        </div>
+        <div *ngIf="!signedUser" class="modal-body">
+            <div *ngIf="!registered" class="mb-3">
+                <label for="username" class="form-label">Username:</label>
+                <input [(ngModel)]="username" type="text" class="form-control" id="username">
+            </div>
+            <div class="mb-3">
+                <label for="email" class="form-label">Email:</label>
+                <input [(ngModel)]="email" type="email" class="form-control" id="email">
+            </div>
+            <div class="mb-3">
+                <label for="password" class="form-label">Password:</label>
+                <input [(ngModel)]="password" type="password" class="form-control" id="password">
+            </div>
+        </div>
+        <div *ngIf="signedUser" class="modal-body">
+            <div class="mb-3">
+                <label for="newPostTitle" class="form-label">Title:</label>
+                <input [(ngModel)]="title" type="text" class="form-control" id="newPostTitle">
+            </div>
+            <div class="mb-3">
+                <label for="newPostText" class="form-label">Text:</label>
+                <textarea [(ngModel)]="text" class="form-control" id="newPostText" rows="3"></textarea>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button 
+                (click)="resetForm()" 
+                type="button" 
+                class="btn btn-secondary" 
+                data-bs-dismiss="modal">
+                Close
+            </button>
+            <button 
+                *ngIf="!signedUser && registered"
+                (click)="submitSignIn()"
+                type="button" 
+                class="btn btn-success" 
+                data-bs-dismiss="modal">
+                Submit
+            </button>
+            <button 
+                *ngIf="!signedUser && !registered"
+                [disabled]="!username || !email || !password" 
+                (click)="submitSignUp()"
+                type="button" 
+                class="btn btn-primary" 
+                data-bs-dismiss="modal">
+                Submit
+            </button>
+            <button 
+                *ngIf="signedUser && !editStatus"
+                [disabled]="!title || !text" 
+                (click)="addPost()" 
+                type="button" 
+                class="btn btn-success" 
+                data-bs-dismiss="modal">
+                Post
+            </button>
+            <button 
+                *ngIf="signedUser && editStatus"
+                [disabled]="!title || !text" 
+                (click)="saveEdit()" 
+                type="button" 
+                class="btn btn-success" 
+                data-bs-dismiss="modal">
+                Edit post
+            </button>
+        </div>
+      </div>
+    </div>
+</div>
+
+<!-- Blog & posts -->
+<div class="container-fluid">
+    <div *ngFor="let post of blogData" class="card my-3 mx-5 p-3 ">
+        <div>
+            <div class="d-flex flex-row justify-content-between align-items-center">
+                <div class="card-body">
+                    <h5 class="card-title">{{ post.topic }}</h5>
+                    <h6 class="card-subtitle text-muted">Posted by: {{post.postedBy}}</h6>
+                    <p class="card-text mt-3">{{ post.message }} </p>
+                </div>
+                <div class="text-muted fs-8">
+                    <fa-icon [icon]="faClock"></fa-icon>
+                    <span class="time-body"> {{ post.date | date:'HH:mm, dd.MM.yyyy' }}</span>
+                </div>
+            </div>
+            <div 
+                *ngIf="signedUser === post.postedBy || signedUser === 'admin'" 
+                class="btn-group float-end" role="group">
+                <button 
+                    (click)="editPost(post)"
+                    type="button" 
+                    class="btn btn-warning" 
+                    style="--bs-btn-font-size: .75rem;"
+                    data-bs-toggle="modal" data-bs-target="#addModal"> 
+                    Edit
+                </button>
+                <button 
+                    (click)="deletePost(post)"    
+                    type="button" 
+                    class="btn btn-danger" 
+                    style="--bs-btn-font-size: .75rem;"> 
+                    Delete
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
